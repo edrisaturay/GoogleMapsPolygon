@@ -277,8 +277,9 @@ $(document).ready(() => {
             }
 
         });
+        boxesWrapper.append('<input type="hidden" value="'+ elements +''"")
+         
         boxesWrapper.text(elements);
-        boxesWrapper.append('<input type="hidden" value="'+ elements +'" name="selected-points" />');
     }
 
     $("#back-to-location").on("click", () => {
