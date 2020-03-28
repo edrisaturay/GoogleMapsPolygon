@@ -282,6 +282,16 @@ $(document).ready(() => {
         boxesWrapper.text(elements);
     }
 
+    /**
+     * 
+     * @param {*} poly 
+     * Get area of the drawn polygon in acres
+     */
+    function GetArea(poly) {
+        var result = parseFloat(google.maps.geometry.spherical.computeArea(poly.getPath())) * 0.000247105;
+        return result.toFixed(4);
+    }
+
     $("#back-to-location").on("click", () => {
         myMap.setCenter(centerpoint[0]);
     });

@@ -1,0 +1,17 @@
+.btn-location {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 1;
+    padding: 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.8);
+    transition: 0.5s;
+  }
+  
+  .btn-location:hover {
+    background-color: rgba(0, 0, 0, 1);
+    color: white;
+    cursor: pointer;
+  }

@@ -208,6 +208,7 @@ $(document).ready(() => {
                     // Disable editiing on the polygon
                     $("#save-polygon").on("click", () => {
                         PolygonEditable(false);
+                        UpdateUI();
                     });
                     // Delete the polygon and remove 
                     $("#delete-polygon").on("click", () => {
@@ -250,7 +251,8 @@ $(document).ready(() => {
         var coordinates = polygon.getPath().getArray();
         var message = '';
         message += '<div style="color:#000">This polygon has ' 
-            + coordinates.length + ' points<br>';
+            + coordinates.length + ' points<br>'
+            + 'Area is ' + GetArea(polygon) + ' acres</div>';
 
         message += '<p class="mt-3"><a href="#" id="edit-polygon" class="btn btn-sm btn-warning mr-2">Edit</a> '
             + '<a href="#" id="save-polygon" class="btn btn-sm btn-success mr-2">Done</a> '
@@ -280,6 +282,16 @@ $(document).ready(() => {
 
          
         boxesWrapper.text(elements);
+    }
+
+    /**
+     * 
+     * @param {*} poly 
+     * Get area of the drawn polygon in acres
+     */
+    function GetArea(poly) {
+        var result = parseFloat(google.maps.geometry.spherical.computeArea(poly.getPath())) * 0.000247105;
+        return result.toFixed(4);
     }
 
     $("#back-to-location").on("click", () => {
