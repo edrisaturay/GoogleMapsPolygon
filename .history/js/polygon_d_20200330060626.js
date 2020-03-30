@@ -21,13 +21,14 @@ $(document).ready(() => {
 
     let mapWrapper = $("google-map-wrapper");
 
-    mapWrapper.css("display", "none");
+    mapWrapper.prop("display", "none");
 
     // Listen for the button on click event
     btnGenerate.on("click", () => {
         let polygonVertices = transformValuesToCoordinates();
         if(polygonVertices != null){
             // Define the LatLng coordinates for the polygon's path.
+            m
             initializeMap(polygonVertices);
         }
     });
@@ -69,7 +70,7 @@ $(document).ready(() => {
         });
         polygon.setMap(myMap);
         myMap.fitBounds(polygonBounds);
-        mapWrapper.removeProp("display");
+        $("#btn-location").css("display", "block");
         initializeDrawingManager(polygon);
     }
 

@@ -21,8 +21,6 @@ $(document).ready(() => {
 
     let mapWrapper = $("google-map-wrapper");
 
-    mapWrapper.css("display", "none");
-
     // Listen for the button on click event
     btnGenerate.on("click", () => {
         let polygonVertices = transformValuesToCoordinates();
@@ -54,7 +52,7 @@ $(document).ready(() => {
     function initializeMap(polygonVertices) {
         let polygonBounds = getCenterOfPolygon(polygonVertices);
         centerpoint = polygonBounds.getCenter();
-        myMap = new google.maps.Map(document.getElementById('map'), {
+        var myMap = new google.maps.Map(document.getElementById('map'), {
             zoom: 5, 
             center: centerpoint
         });
@@ -69,11 +67,11 @@ $(document).ready(() => {
         });
         polygon.setMap(myMap);
         myMap.fitBounds(polygonBounds);
-        mapWrapper.removeProp("display");
-        initializeDrawingManager(polygon);
+        $("#btn-location").css("display", "block");
+        initializeDrawingManager();
     }
 
-    function initializeDrawingManager(polygon){
+    function initializeDrawingManager(){
         myDrawingManager = new google.maps.drawing.DrawingManager({
             drawingMode: null,
             drawingControl: true,
@@ -92,13 +90,13 @@ $(document).ready(() => {
             }
         });
         myDrawingManager.setMap(myMap);
-        polygonClickListener(polygon);
+        polygonClickListener();
         AddAdditionalEventListeners(polygon);
         ShowDrawingTools(false);
-        // PolygonEditable(false);
+        PolygonEditable(false);
     }
 
-    function polygonClickListener(polygon) {
+    function polygonClickListener() {
         google.maps.event.addListener(
             polygon,
             'click',
@@ -127,7 +125,7 @@ $(document).ready(() => {
 
     function deletePolygon() {
         myInfoWindow.close();
-        polygon.setMap(null);
+        myField.setMap(null);
         ShowDrawingTools(true);
         $("#selected-field").empty().removeClass("mt-3 border border-secondnary p-3");
 
@@ -225,34 +223,6 @@ $(document).ready(() => {
     }
 
     $("#back-to-location").on("click", () => {
-        getCurrentLocation();
+        myMap.setCenter(centerpoint);
     });
-
-    /**
-     * get the user current location and zoom to it
-     */
-    function getCurrentLocation(){
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition( (position) => {
-                centerpoint = [
-                    {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    }
-                ]
-                myMap.setCenter(centerpoint[0]);
-            })
-        }else{
-            // Browser doesn't support Geolocation
-            handleLocationError(false, infoWindow, map.getCenter());
-        }
-    }
-
-    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-            'Error: The Geolocation service failed.' :
-            'Error: Your browser doesn\'t support geolocation.');
-        infoWindow.open(map);
-    }
 });

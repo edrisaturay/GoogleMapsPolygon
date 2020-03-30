@@ -21,8 +21,6 @@ $(document).ready(() => {
 
     let mapWrapper = $("google-map-wrapper");
 
-    mapWrapper.css("display", "none");
-
     // Listen for the button on click event
     btnGenerate.on("click", () => {
         let polygonVertices = transformValuesToCoordinates();
@@ -69,7 +67,7 @@ $(document).ready(() => {
         });
         polygon.setMap(myMap);
         myMap.fitBounds(polygonBounds);
-        mapWrapper.removeProp("display");
+        $("#btn-location").css("display", "block");
         initializeDrawingManager(polygon);
     }
 
@@ -225,10 +223,7 @@ $(document).ready(() => {
     }
 
     $("#back-to-location").on("click", () => {
-        getCurrentLocation();
-    });
-
-    /**
+        /**
      * get the user current location and zoom to it
      */
     function getCurrentLocation(){
@@ -240,19 +235,12 @@ $(document).ready(() => {
                         lng: position.coords.longitude
                     }
                 ]
-                myMap.setCenter(centerpoint[0]);
+                myMap.setCenter(centerpoint[0])
             })
         }else{
             // Browser doesn't support Geolocation
             handleLocationError(false, infoWindow, map.getCenter());
         }
     }
-
-    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-            'Error: The Geolocation service failed.' :
-            'Error: Your browser doesn\'t support geolocation.');
-        infoWindow.open(map);
-    }
+    });
 });

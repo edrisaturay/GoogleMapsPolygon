@@ -2,16 +2,9 @@ $(document).ready(() => {
 
     console.log("Ready");
 
-    var myMap                  // holds the map object drawn on the 
-    var myDrawingManager       // holds drawing tools
-    var polygon                // holds the polygon we draw using drawing tools
-    var myInfoWindow           // when our polygon is clicked, a dialog box 
-                               // will open up. This variable holds that info
-    var centerpoint            // center point of the map
-
-     // create a dialog box but don't bind it to anything yet
-     myInfoWindow = new google.maps.InfoWindow();
-
+    let polygon; 
+    let myMap;
+    let DrawingManager;
     // Populate the input box with some dummy polygon vertices
     let polygonVerticesInput = $("#input-polygon-vertices");
     polygonVerticesInput.val("46.28023856550844,6.065817904296855; 46.11579388534466,6.134482455078105; 46.118649720430554,5.912009310546855");
@@ -20,8 +13,6 @@ $(document).ready(() => {
     let btnGenerate = $("#btn-generate");
 
     let mapWrapper = $("google-map-wrapper");
-
-    mapWrapper.css("display", "none");
 
     // Listen for the button on click event
     btnGenerate.on("click", () => {
@@ -53,10 +44,9 @@ $(document).ready(() => {
 
     function initializeMap(polygonVertices) {
         let polygonBounds = getCenterOfPolygon(polygonVertices);
-        centerpoint = polygonBounds.getCenter();
-        myMap = new google.maps.Map(document.getElementById('map'), {
+        var myMap = new google.maps.Map(document.getElementById('map'), {
             zoom: 5, 
-            center: centerpoint
+            center: polygonBounds.getCenter()
         });
 
         polygon = new google.maps.Polygon({
@@ -69,11 +59,11 @@ $(document).ready(() => {
         });
         polygon.setMap(myMap);
         myMap.fitBounds(polygonBounds);
-        mapWrapper.removeProp("display");
-        initializeDrawingManager(polygon);
+        $("#btn-location").css("display", "block");
+        AddAdditionalEventListeners(polygon);
     }
 
-    function initializeDrawingManager(polygon){
+    function initializeDrawingManager(){
         myDrawingManager = new google.maps.drawing.DrawingManager({
             drawingMode: null,
             drawingControl: true,
@@ -92,57 +82,7 @@ $(document).ready(() => {
             }
         });
         myDrawingManager.setMap(myMap);
-        polygonClickListener(polygon);
-        AddAdditionalEventListeners(polygon);
-        ShowDrawingTools(false);
-        // PolygonEditable(false);
-    }
 
-    function polygonClickListener(polygon) {
-        google.maps.event.addListener(
-            polygon,
-            'click',
-            function(event) {
-                var message = GetMessage(polygon);
-                myInfoWindow.setOptions({ content: message });
-                myInfoWindow.setPosition(event.latLng);
-                myInfoWindow.open(myMap);
-                google.maps.event.addListener(myInfoWindow, 'domready', event => {
-                    // Enable editing on the polygon
-                    $("#edit-polygon").on("click", () => {
-                        PolygonEditable(true);
-                    });
-                    // Disable editiing on the polygon
-                    $("#save-polygon").on("click", () => {
-                        PolygonEditable(false);
-                    });
-                    // Delete the polygon and remove 
-                    $("#delete-polygon").on("click", () => {
-                        deletePolygon();
-                    });
-                });
-            }
-        );
-    }
-
-    function deletePolygon() {
-        myInfoWindow.close();
-        polygon.setMap(null);
-        ShowDrawingTools(true);
-        $("#selected-field").empty().removeClass("mt-3 border border-secondnary p-3");
-
-    }
-
-    function GetMessage(polygon) {
-        var coordinates = polygon.getPath().getArray();
-        var message = '';
-        message += '<div style="color:#000">This polygon has ' 
-            + coordinates.length + ' points<br>';
-
-        message += '<p class="mt-3"><a href="#" id="edit-polygon" class="btn btn-sm btn-warning mr-2">Edit</a> '
-            + '<a href="#" id="save-polygon" class="btn btn-sm btn-success mr-2">Done</a> '
-            + '<a href="#" id="delete-polygon" class="btn btn-sm btn-danger mr-2">Delete</a></p>';
-        return message;
     }
 
     function AddAdditionalEventListeners(polygon){
@@ -183,22 +123,6 @@ $(document).ready(() => {
         );
     }
 
-    function ShowDrawingTools(val) {
-        myDrawingManager.setOptions({
-            drawingMode: null,
-            drawingControl: val
-        });
-    }
-
-    function PolygonEditable(val) {
-        polygon.setOptions({
-            editable: val,
-            draggable: val
-        });
-        myInfoWindow.close();
-        return false;
-    }
-
     function updatePolygonVerticesTextBox(polygon){
         polygonVerticesInput.empty();
         polygonVerticesInput.addClass("mt-3 border border-secondnary p-3");
@@ -225,34 +149,6 @@ $(document).ready(() => {
     }
 
     $("#back-to-location").on("click", () => {
-        getCurrentLocation();
+        myMap.setCenter(centerpoint[0]);
     });
-
-    /**
-     * get the user current location and zoom to it
-     */
-    function getCurrentLocation(){
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition( (position) => {
-                centerpoint = [
-                    {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    }
-                ]
-                myMap.setCenter(centerpoint[0]);
-            })
-        }else{
-            // Browser doesn't support Geolocation
-            handleLocationError(false, infoWindow, map.getCenter());
-        }
-    }
-
-    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-            'Error: The Geolocation service failed.' :
-            'Error: Your browser doesn\'t support geolocation.');
-        infoWindow.open(map);
-    }
 });

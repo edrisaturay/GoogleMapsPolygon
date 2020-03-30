@@ -9,9 +9,6 @@ $(document).ready(() => {
                                // will open up. This variable holds that info
     var centerpoint            // center point of the map
 
-     // create a dialog box but don't bind it to anything yet
-     myInfoWindow = new google.maps.InfoWindow();
-
     // Populate the input box with some dummy polygon vertices
     let polygonVerticesInput = $("#input-polygon-vertices");
     polygonVerticesInput.val("46.28023856550844,6.065817904296855; 46.11579388534466,6.134482455078105; 46.118649720430554,5.912009310546855");
@@ -20,8 +17,6 @@ $(document).ready(() => {
     let btnGenerate = $("#btn-generate");
 
     let mapWrapper = $("google-map-wrapper");
-
-    mapWrapper.css("display", "none");
 
     // Listen for the button on click event
     btnGenerate.on("click", () => {
@@ -54,7 +49,7 @@ $(document).ready(() => {
     function initializeMap(polygonVertices) {
         let polygonBounds = getCenterOfPolygon(polygonVertices);
         centerpoint = polygonBounds.getCenter();
-        myMap = new google.maps.Map(document.getElementById('map'), {
+        var myMap = new google.maps.Map(document.getElementById('map'), {
             zoom: 5, 
             center: centerpoint
         });
@@ -69,11 +64,11 @@ $(document).ready(() => {
         });
         polygon.setMap(myMap);
         myMap.fitBounds(polygonBounds);
-        mapWrapper.removeProp("display");
-        initializeDrawingManager(polygon);
+        $("#btn-location").css("display", "block");
+        initializeDrawingManager();
     }
 
-    function initializeDrawingManager(polygon){
+    function initializeDrawingManager(){
         myDrawingManager = new google.maps.drawing.DrawingManager({
             drawingMode: null,
             drawingControl: true,
@@ -92,18 +87,17 @@ $(document).ready(() => {
             }
         });
         myDrawingManager.setMap(myMap);
-        polygonClickListener(polygon);
         AddAdditionalEventListeners(polygon);
         ShowDrawingTools(false);
-        // PolygonEditable(false);
+        PolygonEditable(false);
     }
 
-    function polygonClickListener(polygon) {
+    function polygonClickListener() {
         google.maps.event.addListener(
             polygon,
             'click',
             function(event) {
-                var message = GetMessage(polygon);
+                var message = GetMessage(myField);
                 myInfoWindow.setOptions({ content: message });
                 myInfoWindow.setPosition(event.latLng);
                 myInfoWindow.open(myMap);
@@ -125,26 +119,14 @@ $(document).ready(() => {
         );
     }
 
-    function deletePolygon() {
+    function DeleteField() {
         myInfoWindow.close();
-        polygon.setMap(null);
+        myField.setMap(null);
         ShowDrawingTools(true);
         $("#selected-field").empty().removeClass("mt-3 border border-secondnary p-3");
 
     }
-
-    function GetMessage(polygon) {
-        var coordinates = polygon.getPath().getArray();
-        var message = '';
-        message += '<div style="color:#000">This polygon has ' 
-            + coordinates.length + ' points<br>';
-
-        message += '<p class="mt-3"><a href="#" id="edit-polygon" class="btn btn-sm btn-warning mr-2">Edit</a> '
-            + '<a href="#" id="save-polygon" class="btn btn-sm btn-success mr-2">Done</a> '
-            + '<a href="#" id="delete-polygon" class="btn btn-sm btn-danger mr-2">Delete</a></p>';
-        return message;
-    }
-
+    
     function AddAdditionalEventListeners(polygon){
         polygon.getPaths().forEach((path, index) => {
             // Add new point event listener
@@ -191,7 +173,7 @@ $(document).ready(() => {
     }
 
     function PolygonEditable(val) {
-        polygon.setOptions({
+        myField.setOptions({
             editable: val,
             draggable: val
         });
@@ -225,34 +207,6 @@ $(document).ready(() => {
     }
 
     $("#back-to-location").on("click", () => {
-        getCurrentLocation();
+        myMap.setCenter(centerpoint);
     });
-
-    /**
-     * get the user current location and zoom to it
-     */
-    function getCurrentLocation(){
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition( (position) => {
-                centerpoint = [
-                    {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    }
-                ]
-                myMap.setCenter(centerpoint[0]);
-            })
-        }else{
-            // Browser doesn't support Geolocation
-            handleLocationError(false, infoWindow, map.getCenter());
-        }
-    }
-
-    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-        infoWindow.setPosition(pos);
-        infoWindow.setContent(browserHasGeolocation ?
-            'Error: The Geolocation service failed.' :
-            'Error: Your browser doesn\'t support geolocation.');
-        infoWindow.open(map);
-    }
 });

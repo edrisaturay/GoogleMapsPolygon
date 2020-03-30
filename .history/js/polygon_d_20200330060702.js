@@ -21,7 +21,7 @@ $(document).ready(() => {
 
     let mapWrapper = $("google-map-wrapper");
 
-    mapWrapper.css("display", "none");
+    mapWrapper.prop("display", "none");
 
     // Listen for the button on click event
     btnGenerate.on("click", () => {
