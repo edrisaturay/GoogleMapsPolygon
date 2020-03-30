@@ -273,7 +273,7 @@ $(document).ready(() => {
 
         });
         boxesWrapper.text(elements);
-        boxesWrapper.append('<input type="hidden" value="'+ elements +'" name="selected-points"  />');
+        boxesWrapper.append('<input type="hidden" value="'+ elements +'" name="selected-points"  required/>');
     }
 
     $("#back-to-location").on("click", () => {
